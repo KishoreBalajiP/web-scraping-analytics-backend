@@ -10,20 +10,54 @@ const messageRoutes = require("../routes/messages");
 
 const app = express();
 
-// Allow all origins (for development)
+// Connect MongoDB
+connectDB();
+
+// Enable CORS
 app.use(cors({
   origin: "*",
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization"]
+  methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+  allowedHeaders: ["Content-Type", "Authorization"]
 }));
 
+// Handle preflight requests
+app.options("*", cors());
+
+// Parse JSON
 app.use(express.json());
 
-connectDB();
+/*
+Root Route (Health Check)
+*/
+app.get("/", (req, res) => {
+  res.json({
+    status: "Web Scraping Analytics API Running",
+    endpoints: [
+      "/api/scrape",
+      "/api/messages",
+      "/api/analytics",
+      "/api/telemetry"
+    ]
+  });
+});
+
+/*
+API Routes
+*/
 
 app.use("/api/scrape", scrapeRoutes);
 app.use("/api/analytics", analyticsRoutes);
 app.use("/api/telemetry", telemetryRoutes);
 app.use("/api/messages", messageRoutes);
+
+/*
+404 Handler
+*/
+
+app.use((req, res) => {
+  res.status(404).json({
+    error: "Route not found"
+  });
+});
 
 module.exports = app;
