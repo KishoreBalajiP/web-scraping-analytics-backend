@@ -2,9 +2,7 @@ const express = require("express");
 const cors = require("cors");
 
 const connectDB = require("../config/db");
-
-const scrapeRoutes = require("../routes/scrape");
-const messageRoutes = require("../routes/messages");
+const mailRoutes = require("../routes/mailRoutes");
 
 const app = express();
 
@@ -36,8 +34,8 @@ app.get("/", (req, res) => {
   res.json({
     status: "Gmail Scraper API Running",
     endpoints: [
-      "/api/scrape",
-      "/api/messages"
+      "/api/mail/fetch",
+      "/api/mail/search/:keyword"
     ]
   });
 });
@@ -46,15 +44,12 @@ app.get("/", (req, res) => {
 API Routes
 */
 
-// Fetch & store Gmail inbox emails
-app.use("/api/scrape", scrapeRoutes);
-
-// Keyword search from MongoDB
-app.use("/api/messages", messageRoutes);
+app.use("/api/mail", mailRoutes);
 
 /*
 404 Handler
 */
+
 app.use((req, res) => {
   res.status(404).json({
     error: "Route not found"
